@@ -1,0 +1,24 @@
+{
+  "name": "token",
+  "version": "1.0.0",
+  "description": "fiware token fetcher",
+  "main": "index.js",
+  "scripts": {
+    "start": "babel-node index"
+  },
+  "keywords": [
+    "fiware",
+    "token"
+  ],
+  "author": "Priit Kallas",
+  "license": "ISC",
+  "dependencies": {
+    "inquirer": "^0.12.0",
+    "request": "^2.69.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.5.1",
+    "babel-preset-es2015": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0"
+  }
+}
