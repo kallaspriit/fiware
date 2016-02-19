@@ -1,3 +1,4 @@
+/* global Promise */
 import fs from 'fs';
 import request from 'request';
 import inquirer from 'inquirer';
@@ -27,13 +28,23 @@ function loadCredentialsFromFile() {
 		return {
 			username: info.username || null,
 			password: info.password || null
-		}
+		};
 	} catch (e) {
 		return {
 			username: null,
 			password: null
 		};
 	}
+}
+
+function storeCredentialsToFile(username, password) {
+	fs.writeFileSync(
+		'credentials.json',
+		JSON.stringify({
+			username,
+			password
+		}, null, '\t')
+	);
 }
 
 function promptCredentials() {
@@ -51,7 +62,9 @@ function promptCredentials() {
 			message: 'Enter FIWARE password:',
 			default: fileCredentials.password
 		}], (answers) => {
-		    const { username, password } = answers;
+			const { username, password } = answers;
+
+			storeCredentialsToFile(username, password);
 
 			resolve({
 				username,
@@ -62,7 +75,7 @@ function promptCredentials() {
 }
 
 function queryApi(method, path, data) {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		request({
 			url: config.api.url + '/' + path,
 			method: method,
@@ -72,7 +85,7 @@ function queryApi(method, path, data) {
 			json: data
 		}, (error, response, body) => {
 			if (error !== null) {
-				throw new error;
+				throw error;
 			}
 
 			if (response.statusCode !== 200) {
@@ -92,9 +105,6 @@ function queryBroker(method, token, path, data = {}) {
 		request({
 			url: url,
 			method: method,
-			headers: {
-				'Content-type': 'application/json'
-			},
 			json: data,
 			headers: {
 				'X-Auth-Token': token,
@@ -192,14 +202,14 @@ promptCredentials()
 
 	// create a new entity
 	.then(() => createEntity(uniqueEntityId, [{
-            "name": "city_location",
-            "type": "city",
-            "value": "Tartu"
-        }, {
-            "name": "temperature",
-            "type": "float",
-            "value": "3.2"
-    }]))
+		name: 'city_location',
+		type: 'city',
+		value: 'Tartu'
+	}, {
+		name: 'temperature',
+		type: 'float',
+		value: '3.2'
+	}]))
 	.then(handleResponse('created entity "' + uniqueEntityId + '"'))
 
 	// fetch created sensor info
