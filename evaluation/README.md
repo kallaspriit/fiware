@@ -15,13 +15,13 @@ fake) and accepts a command to toggle it's build-in LED.
 Setup
 -----
 
-1. Configure FIWARE instance
+### Configure FIWARE instance
 - [Installing orion](https://fiware-orion.readthedocs.org/en/develop/admin/install/index.html)
 - [API walkthrough](https://fiware-orion.readthedocs.org/en/develop/user/walkthrough_apiv1/index.html)
 - Amazon AMI `Basic IoT Stack powered by FIWARE v0.2.0 (ami-a97919de)`
 - SSH into the instance
 
-2. Create room "lab"
+### Create room "lab"
 ```json
 (curl localhost:1026/v1/updateContext -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
@@ -80,7 +80,7 @@ EOF
 }
 ```
 
-3. Query created room information
+### Query created room information
 ```json
 (curl localhost:1026/v1/queryContext -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
@@ -126,7 +126,7 @@ EOF
 }
 ```
 
-4. Query created room information as an object where keys are the attribute names
+### Query created room information as an object where keys are the attribute names
 ```json
 (curl localhost:1026/v1/queryContext?attributeFormat=object -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
@@ -170,7 +170,7 @@ EOF
 }
 ```
 
-5. Query only for temperature
+### Query only for temperature
 ```json
 (curl localhost:1026/v1/queryContext?attributeFormat=object -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
