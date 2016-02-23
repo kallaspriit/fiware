@@ -175,7 +175,7 @@
 		"wrap-regex": 2,
 		"max-len": [2, 120, 4],
 		"no-underscore-dangle": 0,
-		"no-trailing-spaces": 2,
+		"no-trailing-spaces": 0,
 		"jsx-quotes": 2,
 		"one-var": [2, "never"],
 
@@ -195,7 +195,10 @@
 		"Else": true,
 
 		// debug helpers
-		"dbg": true
+		"dbg": true,
+
+		// node native promise
+		"Promise": true
 	},
 
 	"ext": [".js", ".jsx"]

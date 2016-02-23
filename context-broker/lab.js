@@ -1,177 +1,64 @@
-/* global Promise */
-import fs from 'fs';
-import request from 'request';
-import inquirer from 'inquirer';
+import util from './lib/util';
+import Api from './lib/fiware/Api';
+import ContextBroker from './lib/fiware/ContextBroker';
 
+// configuration
 const config = {
-	api: {
-		url: 'https://orion.lab.fiware.org',
-		broker: {
-			url: 'http://orion.lab.fiware.org',
-			port: 1026,
-			version: 'v1'
-		},
-		token: null // this will be populated automatically
-	}
+	apiUrl: 'https://orion.lab.fiware.org',
+	brokerUrl: 'http://orion.lab.fiware.org:1026'
 };
 
-const Method = {
-	GET: 'GET',
-	POST: 'POST',
-	PUT: 'PUT'
-};
+// setup APIs
+const api = new Api({
+	url: config.apiUrl
+});
+const contextBroker = new ContextBroker({
+	url: config.brokerUrl
+});
 
-function loadCredentialsFromFile() {
-	try {
-		const info = JSON.parse(fs.readFileSync('credentials.json', 'UTF8'));
+// prompts for user credentials
+function promptCredentials() {
+	const credentialsFilename = 'credentials.json';
+	const credentials = util.loadJSON(credentialsFilename);
 
-		return {
-			username: info.username || null,
-			password: info.password || null
-		};
-	} catch (e) {
-		return {
-			username: null,
-			password: null
-		};
-	}
-}
+	return util.prompt([{
+		type: 'input',
+		name: 'username',
+		message: 'Enter FIWARE username:',
+		default: credentials.username
+	}, {
+		type: 'password',
+		name: 'password',
+		message: 'Enter FIWARE password:',
+		default: credentials.password
+	}]).then((answers) => {
+		const { username, password } = answers;
 
-function storeCredentialsToFile(username, password) {
-	fs.writeFileSync(
-		'credentials.json',
-		JSON.stringify({
+		util.storeJSON(credentialsFilename, {
 			username,
 			password
-		}, null, '\t')
-	);
-}
-
-function promptCredentials() {
-	return new Promise((resolve) => {
-		const fileCredentials = loadCredentialsFromFile();
-
-		inquirer.prompt([{
-			type: 'input',
-			name: 'username',
-			message: 'Enter FIWARE username:',
-			default: fileCredentials.username
-		}, {
-			type: 'password',
-			name: 'password',
-			message: 'Enter FIWARE password:',
-			default: fileCredentials.password
-		}], (answers) => {
-			const { username, password } = answers;
-
-			storeCredentialsToFile(username, password);
-
-			resolve({
-				username,
-				password
-			});
 		});
+
+		return answers;
 	});
 }
 
-function queryApi(method, path, data) {
-	return new Promise((resolve) => {
-		request({
-			url: config.api.url + '/' + path,
-			method: method,
-			headers: {
-				'Content-type': 'application/json'
-			},
-			json: data
-		}, (error, response, body) => {
-			if (error !== null) {
-				throw error;
-			}
-
-			if (response.statusCode !== 200) {
-				throw new Error('fetching access token failed (' + response.statusCode + ' - ' + body.message + ')');
-			}
-
-			resolve(body);
-		});
-	});
+// generates a unique identifier
+function generateUniqueId() {
+	return Math.floor(Math.random() * 1000000000);
 }
 
-function queryBroker(method, token, path, data = {}) {
-	return new Promise((resolve) => {
-		const baseUrl = config.api.broker.url + ':' + config.api.broker.port + '/' + config.api.broker.version;
-		const url = baseUrl + '/' + path;
+// handles token response
+function handleTokenResponse(token) {
+	config.token = token;
 
-		request({
-			url: url,
-			method: method,
-			json: data,
-			headers: {
-				'X-Auth-Token': token,
-				'Content-Type': 'application/json',
-				'Accept': 'application/json'
-			}
-		}, (error, response, body) => {
-			if (error !== null) {
-				throw error;
-			}
-
-			if (response.statusCode !== 200) {
-				throw new Error('querying broker failed (' + response.statusCode + ' - ' + body.message + ')');
-			}
-
-			resolve(body);
-		});
-	});
-}
-
-function fetchToken({ username, password }) {
-	return queryApi(
-		Method.POST,
-		'token', {
-			username: username,
-			password: password
-		}
-	);
-}
-
-function fetchEntity(name) {
-	return queryBroker(
-		Method.GET,
-		config.api.token,
-		'contextEntities/' + name
-	);
-}
-
-function createEntity(id, attributes) {
-	return queryBroker(
-		Method.POST,
-		config.api.token,
-		'contextEntities/' + id,
-		{
-			attributes: attributes
-		}
-	);
-}
-
-function updateEntityAttribute(id, attribute, value) {
-	return queryBroker(
-		Method.PUT,
-		config.api.token,
-		'contextEntities/' + id + '/attributes/' + attribute,
-		{
-			value: value
-		}
-	);
-}
-
-function handleToken(token) {
-	config.api.token = token;
+	contextBroker.setAccessToken(token);
 
 	console.log('your access token is "' + token + '"');
 }
 
-function handleResponse(name) {
+// handles query response
+function handleQueryResponse(name) {
 	return (response) => {
 		const responseText = JSON.stringify(response, null, '  ') + '\n';
 
@@ -179,29 +66,26 @@ function handleResponse(name) {
 	};
 }
 
-function generateUniqueId() {
-	return Math.floor(Math.random() * 1000000000);
-}
-
+// generate unique entity id
 const uniqueEntityId = 'TestEntity-' + generateUniqueId();
 
 // ask for user username/password
 promptCredentials()
 
 	// fetch, remember and display the access token
-	.then(fetchToken)
-	.then(handleToken)
+	.then(({ username, password }) => api.fetchToken(username, password))
+	.then(handleTokenResponse)
 
 	// fetch and display traffic sensor info
-	.then(() => fetchEntity('urn:smartsantander:testbed:357'))
-	.then(handleResponse('sound level meter'))
+	.then(() => contextBroker.fetchEntity('urn:smartsantander:testbed:357'))
+	.then(handleQueryResponse('sound level meter'))
 
 	// fetch and display traffic sensor info
-	.then(() => fetchEntity('urn:smartsantander:testbed:3332'))
-	.then(handleResponse('traffic sensor'))
+	.then(() => contextBroker.fetchEntity('urn:smartsantander:testbed:3332'))
+	.then(handleQueryResponse('traffic sensor'))
 
 	// create a new entity
-	.then(() => createEntity(uniqueEntityId, [{
+	.then(() => contextBroker.createEntity(uniqueEntityId, [{
 		name: 'city_location',
 		type: 'city',
 		value: 'Tartu'
@@ -210,19 +94,19 @@ promptCredentials()
 		type: 'float',
 		value: 3.2
 	}]))
-	.then(handleResponse('created entity "' + uniqueEntityId + '"'))
+	.then(handleQueryResponse('created entity "' + uniqueEntityId + '"'))
 
 	// fetch created sensor info
-	.then(() => fetchEntity(uniqueEntityId))
-	.then(handleResponse('created sensor info'))
+	.then(() => contextBroker.fetchEntity(uniqueEntityId))
+	.then(handleQueryResponse('created sensor info'))
 
 	// update created entity value
-	.then(() => updateEntityAttribute(uniqueEntityId, 'temperature', -6.2))
-	.then(handleResponse('updated entity "' + uniqueEntityId + '"'))
+	.then(() => contextBroker.updateEntityAttribute(uniqueEntityId, 'temperature', -6.2))
+	.then(handleQueryResponse('updated entity "' + uniqueEntityId + '"'))
 
 	// fetch updated sensor info
-	.then(() => fetchEntity(uniqueEntityId))
-	.then(handleResponse('updated sensor info'))
+	.then(() => contextBroker.fetchEntity(uniqueEntityId))
+	.then(handleQueryResponse('updated sensor info'))
 
 	// handle any errors
 	.catch((error) => {
