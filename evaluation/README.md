@@ -50,7 +50,7 @@ Setup
 EOF
 ```
 
-```
+```json
 {
     "contextResponses": [
         {
@@ -96,7 +96,7 @@ EOF
 EOF
 ```
 
-```
+```json
 {
     "contextResponses": [
         {
@@ -113,6 +113,93 @@ EOF
                         "value": "720"
                     }
                 ],
+                "id": "lab",
+                "isPattern": "false",
+                "type": "Room"
+            },
+            "statusCode": {
+                "code": "200",
+                "reasonPhrase": "OK"
+            }
+        }
+    ]
+}
+```
+
+4. Query created room information as an object where keys are the attribute names
+```
+(curl localhost:1026/v1/queryContext?attributeFormat=object -s -S --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
+{
+    "entities": [
+        {
+            "type": "Room",
+            "isPattern": "false",
+            "id": "lab"
+        }
+    ]
+}
+EOF
+```
+
+```json
+{
+    "contextResponses": [
+        {
+            "contextElement": {
+                "attributes": {
+                    "pressure": {
+                        "type": "integer",
+                        "value": "720"
+                    },
+                    "temperature": {
+                        "type": "float",
+                        "value": "22"
+                    }
+                },
+                "id": "lab",
+                "isPattern": "false",
+                "type": "Room"
+            },
+            "statusCode": {
+                "code": "200",
+                "reasonPhrase": "OK"
+            }
+        }
+    ]
+}
+```
+
+5. Query only for temperature
+```
+(curl localhost:1026/v1/queryContext?attributeFormat=object -s -S --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
+{
+    "entities": [
+        {
+            "type": "Room",
+            "isPattern": "false",
+            "id": "lab"
+        }
+    ],
+    "attributes": [
+        "temperature"
+    ]
+}
+EOF
+```
+
+```json
+{
+    "contextResponses": [
+        {
+            "contextElement": {
+                "attributes": {
+                    "temperature": {
+                        "type": "float",
+                        "value": "22"
+                    }
+                },
                 "id": "lab",
                 "isPattern": "false",
                 "type": "Room"
