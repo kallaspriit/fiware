@@ -18,6 +18,8 @@ Setup
 ### Configure FIWARE instance
 - [Installing orion](https://fiware-orion.readthedocs.org/en/develop/admin/install/index.html)
 - [API walkthrough](https://fiware-orion.readthedocs.org/en/develop/user/walkthrough_apiv1/index.html)
+- [API v1](http://telefonicaid.github.io/fiware-orion/api/v1/)
+- [Accumulator server example](https://github.com/telefonicaid/fiware-orion/blob/master/scripts/accumulator-server.py)
 - Amazon AMI `Basic IoT Stack powered by FIWARE v0.2.0 (ami-a97919de)`
 - SSH into the instance
 
@@ -329,6 +331,43 @@ EOF
                         "name": "pressure",
                         "type": "integer",
                         "value": ""
+                    }
+                ],
+                "id": "lab",
+                "isPattern": "false",
+                "type": "Room"
+            },
+            "statusCode": {
+                "code": "200",
+                "reasonPhrase": "OK"
+            }
+        }
+    ]
+}
+```
+
+### Get all entities
+```
+curl localhost:1026/v1/contextEntities -s -S --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' | python -mjson.tool
+```
+
+```
+{
+    "contextResponses": [
+        ...
+        {
+            "contextElement": {
+                "attributes": [
+                    {
+                        "name": "temperature",
+                        "type": "float",
+                        "value": "26.5"
+                    },
+                    {
+                        "name": "pressure",
+                        "type": "integer",
+                        "value": "763"
                     }
                 ],
                 "id": "lab",
