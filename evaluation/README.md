@@ -12,8 +12,8 @@ interface also enables sending a command to the device to perform an action.
 Specifically the device is an Arduino YUN connected to a wifi network. It reports room temperature and pressure (can be
 fake) and accepts a command to toggle it's build-in LED.
 
-FIWARE
-------
+Setup
+-----
 
 1. Configure FIWARE instance
 - [Installing orion](https://fiware-orion.readthedocs.org/en/develop/admin/install/index.html)
