@@ -5,10 +5,10 @@ import ContextBroker from './lib/fiware/ContextBroker';
 
 // setup APIs
 const api = new Api({
-	url: config.apiUrl
+	url: config.lab.apiUrl
 });
 const contextBroker = new ContextBroker({
-	url: config.brokerUrl
+	url: config.lab.brokerUrl
 });
 
 // generate unique entity id
@@ -93,8 +93,6 @@ function generateUniqueId() {
 
 // handles token response
 function handleTokenResponse(token) {
-	config.token = token;
-
 	contextBroker.setAccessToken(token);
 
 	console.log('your access token is "' + token + '"');
