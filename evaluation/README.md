@@ -22,7 +22,7 @@ Setup
 - SSH into the instance
 
 2. Create room "lab"
-```
+```json
 (curl localhost:1026/v1/updateContext -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
 {
@@ -81,7 +81,7 @@ EOF
 ```
 
 3. Query created room information
-```
+```json
 (curl localhost:1026/v1/queryContext -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
 {
@@ -127,7 +127,7 @@ EOF
 ```
 
 4. Query created room information as an object where keys are the attribute names
-```
+```json
 (curl localhost:1026/v1/queryContext?attributeFormat=object -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
 {
@@ -171,7 +171,7 @@ EOF
 ```
 
 5. Query only for temperature
-```
+```json
 (curl localhost:1026/v1/queryContext?attributeFormat=object -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
 {
