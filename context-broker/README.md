@@ -28,8 +28,8 @@ Server example
 --------------
 `npm run server`
 
-### Testing that server is working
-Open browser at [http://localhost:1028/](http://localhost:1028/), it should respond with a hello.
+### Test server and view help
+Open browser at [http://localhost:1028/](http://localhost:1028/). It should display some help info.
 
 
 ### Mirror request

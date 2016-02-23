@@ -14,11 +14,18 @@ const app = express();
 // use json body parser
 app.use(bodyParser.json());
 
-// provide default
+// provide some helpful information on default route
 app.get('/', (req, res) => {
 	logRequest(req);
 
-	res.send('Hello!');
+	res.send(`
+		<h1>Supported methods</h1>
+		<ul>
+			<li><strong>GET /</strong> - displays this help information</li>
+			<li><strong>GET /test</strong> - executes test</li>
+			<li><strong>POST /mirror</strong> - renders requested JSON request in response and in console</li>
+		</ul>
+	`);
 });
 
 // provide test method
