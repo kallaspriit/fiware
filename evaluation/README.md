@@ -22,7 +22,7 @@ Setup
 - SSH into the instance
 
 ### Create room "lab"
-```json
+```
 (curl localhost:1026/v1/updateContext -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
 {
@@ -50,7 +50,7 @@ Setup
 EOF
 ```
 
-```json
+```
 {
     "contextResponses": [
         {
@@ -81,7 +81,7 @@ EOF
 ```
 
 ### Query created room information
-```json
+```
 (curl localhost:1026/v1/queryContext -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
 {
@@ -96,7 +96,7 @@ EOF
 EOF
 ```
 
-```json
+```
 {
     "contextResponses": [
         {
@@ -127,7 +127,7 @@ EOF
 ```
 
 ### Query created room information as an object where keys are the attribute names
-```json
+```
 (curl localhost:1026/v1/queryContext?attributeFormat=object -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
 {
@@ -142,7 +142,7 @@ EOF
 EOF
 ```
 
-```json
+```
 {
     "contextResponses": [
         {
@@ -171,7 +171,7 @@ EOF
 ```
 
 ### Query only for temperature
-```json
+```
 (curl localhost:1026/v1/queryContext?attributeFormat=object -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
 {
@@ -189,7 +189,7 @@ EOF
 EOF
 ```
 
-```json
+```
 {
     "contextResponses": [
         {
@@ -200,6 +200,137 @@ EOF
                         "value": "22"
                     }
                 },
+                "id": "lab",
+                "isPattern": "false",
+                "type": "Room"
+            },
+            "statusCode": {
+                "code": "200",
+                "reasonPhrase": "OK"
+            }
+        }
+    ]
+}
+```
+
+### Query by regular expression
+```
+(curl localhost:1026/v1/queryContext -s -S --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
+{
+    "entities": [
+        {
+            "type": "Room",
+            "isPattern": "true",
+            "id": "la.*"
+        }
+    ],
+    "attributes": [
+        "temperature"
+    ]
+} 
+EOF
+```
+
+```
+{
+    "contextResponses": [
+        {
+            "contextElement": {
+                "attributes": [
+                    {
+                        "name": "temperature",
+                        "type": "float",
+                        "value": "22"
+                    }
+                ],
+                "id": "lab",
+                "isPattern": "false",
+                "type": "Room"
+            },
+            "statusCode": {
+                "code": "200",
+                "reasonPhrase": "OK"
+            }
+        }
+    ]
+}
+```
+
+### Quering invalid entity gives error
+```
+(curl localhost:1026/v1/queryContext -s -S --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
+{
+    "entities": [
+        {
+            "type": "Room",
+            "isPattern": "true",
+            "id": "xxx"
+        }
+    ],
+    "attributes": [
+        "temperature"
+    ]
+}
+EOF
+```
+
+```
+{
+    "errorCode": {
+        "code": "404",
+        "reasonPhrase": "No context element found"
+    }
+}
+```
+
+### Update attributes
+```
+(curl localhost:1026/v1/updateContext -s -S --header 'Content-Type: application/json' \
+     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
+{
+    "contextElements": [
+        {
+            "type": "Room",
+            "isPattern": "false",
+            "id": "lab",
+            "attributes": [
+                {
+                    "name": "temperature",
+                    "type": "float",
+                    "value": "26.5"
+                },
+                {
+                    "name": "pressure",
+                    "type": "integer",
+                    "value": "763"
+                }
+            ]
+        }
+    ],
+    "updateAction": "UPDATE"
+}
+EOF
+```
+
+```
+{
+    "contextResponses": [
+        {
+            "contextElement": {
+                "attributes": [
+                    {
+                        "name": "temperature",
+                        "type": "float",
+                        "value": ""
+                    },
+                    {
+                        "name": "pressure",
+                        "type": "integer",
+                        "value": ""
+                    }
+                ],
                 "id": "lab",
                 "isPattern": "false",
                 "type": "Room"
