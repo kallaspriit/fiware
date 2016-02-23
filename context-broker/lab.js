@@ -1,14 +1,14 @@
-import config from './config';
+import { lab as config } from './config';
 import util from './lib/util';
 import Api from './lib/fiware/Api';
 import ContextBroker from './lib/fiware/ContextBroker';
 
 // setup APIs
 const api = new Api({
-	url: config.lab.apiUrl
+	url: config.apiUrl
 });
 const contextBroker = new ContextBroker({
-	url: config.lab.brokerUrl
+	url: config.brokerUrl
 });
 
 // generate unique entity id
