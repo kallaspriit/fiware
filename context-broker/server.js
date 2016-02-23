@@ -14,11 +14,15 @@ app.use(bodyParser.json());
 
 // provide default
 app.get('/', (req, res) => {
+	logRequest(req);
+
 	res.send('Hello!');
 });
 
 // accept POST request and just mirror the data back
 app.post('/mirror', (req, res) => {
+	logRequest(req);
+
 	res.send('Got request\n' + JSON.stringify(req.body, null, '  '));
 });
 
@@ -26,3 +30,8 @@ app.post('/mirror', (req, res) => {
 app.listen(config.port, () => {
 	console.log('server started on port ' + config.port);
 });
+
+// logs the request info to console
+function logRequest(req) {
+	console.log(req.method + ' ' + req.url + '\n' + JSON.stringify(req.body, null, '  ') + '\n\n');
+}
