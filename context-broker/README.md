@@ -28,33 +28,42 @@ Server example
 --------------
 `npm run server`
 
-### Testing
-Open browser at [http://localhost:1028/accumulate](http://localhost:1028/accumulate)
+### Testing that server is working
+Open browser at [http://localhost:1028/](http://localhost:1028/), it should respond with a hello.
 
-### Expected payload format
+
+### Mirror request
+You can make a subscription to http://localhost:1028/mirror, it will echo back and log the request.
+
+### Subscription payload format
 ```
 {
-    "subscriptionId": "51c0ac9ed714fb3b37d7d5a8",
-    "originator": "localhost",
-    "contextResponses": [
-        {
-            "contextElement": {
-                "attributes": [
-                    {
-                        "name": "temperature",
-                        "type": "float",
-                        "value": "26.5"
-                    }
-                ],
-                "type": "Room",
-                "isPattern": "false",
-                "id": "Room1"
-            },
-            "statusCode": {
-                "code": "200",
-                "reasonPhrase": "OK"
-            }
-        }
-    ]
+  "subscriptionId": "56cc2b2d981044052d2e160e",
+  "originator": "localhost",
+  "contextResponses": [
+    {
+      "contextElement": {
+        "type": "Room",
+        "isPattern": "false",
+        "id": "lab",
+        "attributes": [
+          {
+            "name": "temperature",
+            "type": "float",
+            "value": "26.5"
+          },
+          {
+            "name": "pressure",
+            "type": "integer",
+            "value": "763"
+          }
+        ]
+      },
+      "statusCode": {
+        "code": "200",
+        "reasonPhrase": "OK"
+      }
+    }
+  ]
 }
 ```

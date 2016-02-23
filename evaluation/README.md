@@ -382,3 +382,83 @@ curl localhost:1026/v1/contextEntities -s -S --header 'Content-Type: application
     ]
 }
 ```
+
+### Setup subscription server
+- `git clone git clone https://github.com/kallaspriit/fiware.git`
+- `cd fiware/context-broker`
+- `npm install`
+- `npm run server`
+
+### Subscribe for temperature and pressure changes
+```
+(curl localhost:1026/v1/subscribeContext -s -S --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
+{
+    "entities": [
+        {
+            "type": "Room",
+            "isPattern": "false",
+            "id": "lab"
+        }
+    ],
+    "attributes": [
+        "temperature", "pressure"
+    ],
+    "reference": "http://localhost:1028/mirror",
+    "duration": "P1M",
+    "notifyConditions": [
+        {
+            "type": "ONCHANGE",
+            "condValues": [
+                "temperature", "pressure"
+            ]
+        }
+    ],
+    "throttling": "PT5S"
+}
+EOF
+```
+
+```
+{
+    "subscribeResponse": {
+        "duration": "P1M",
+        "subscriptionId": "56cc2b2d981044052d2e160e",
+        "throttling": "PT5S"
+    }
+}
+```
+
+server log
+```
+POST /mirror
+{
+  "subscriptionId": "56cc2b2d981044052d2e160e",
+  "originator": "localhost",
+  "contextResponses": [
+    {
+      "contextElement": {
+        "type": "Room",
+        "isPattern": "false",
+        "id": "lab",
+        "attributes": [
+          {
+            "name": "temperature",
+            "type": "float",
+            "value": "26.5"
+          },
+          {
+            "name": "pressure",
+            "type": "integer",
+            "value": "763"
+          }
+        ]
+      },
+      "statusCode": {
+        "code": "200",
+        "reasonPhrase": "OK"
+      }
+    }
+  ]
+}
+```
