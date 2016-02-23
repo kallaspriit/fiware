@@ -8,7 +8,7 @@ const config = {
 		url: 'https://orion.lab.fiware.org',
 		broker: {
 			url: 'http://orion.lab.fiware.org',
-			port: '1026',
+			port: 1026,
 			version: 'v1'
 		},
 		token: null // this will be populated automatically
@@ -208,7 +208,7 @@ promptCredentials()
 	}, {
 		name: 'temperature',
 		type: 'float',
-		value: '3.2'
+		value: 3.2
 	}]))
 	.then(handleResponse('created entity "' + uniqueEntityId + '"'))
 
@@ -217,7 +217,7 @@ promptCredentials()
 	.then(handleResponse('created sensor info'))
 
 	// update created entity value
-	.then(() => updateEntityAttribute(uniqueEntityId, 'temperature', '-6.2'))
+	.then(() => updateEntityAttribute(uniqueEntityId, 'temperature', -6.2))
 	.then(handleResponse('updated entity "' + uniqueEntityId + '"'))
 
 	// fetch updated sensor info
