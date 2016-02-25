@@ -23,6 +23,7 @@ app.get('/', (req, res) => {
 		<ul>
 			<li><strong>GET /</strong> - displays this help information</li>
 			<li><strong>GET /test</strong> - executes test</li>
+			<li><strong>GET /info/:id</strong> - displays entity info</li>
 			<li><strong>POST /mirror</strong> - renders requested JSON request in response and in console</li>
 		</ul>
 	`);
@@ -40,6 +41,21 @@ app.get('/test', (req, res) => {
 			const output = 'updated temperature to "' + randomTemp + '"\n' + JSON.stringify(response, null, '  ');
 
 			console.log(output);
+
+			res.send(output);
+		});
+});
+
+// provide test method
+app.get('/info/:id', (req, res) => {
+	logRequest(req);
+
+	const id = req.params.id;
+
+	contextBroker.fetchEntity(id)
+		.then(handleQueryResponse('entity "' + id + '"'))
+		.then((response) => {
+			const output = 'entity "' + id + '"\n' + JSON.stringify(response, null, '  ');
 
 			res.send(output);
 		});

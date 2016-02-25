@@ -259,7 +259,7 @@ EOF
 }
 ```
 
-### Quering invalid entity gives error
+### Querying invalid entity gives error
 ```
 (curl localhost:1026/v1/queryContext -s -S --header 'Content-Type: application/json' \
     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
@@ -460,5 +460,54 @@ POST /mirror
       }
     }
   ]
+}
+```
+
+### Add new aggregate temperature parameter
+```
+(curl localhost:1026/v1/updateContext -s -S --header 'Content-Type: application/json' \
+     --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
+{
+    "contextElements": [
+        {
+            "type": "Room",
+            "isPattern": "false",
+            "id": "lab",
+            "attributes": [
+                {
+                    "name": "temperature-history",
+                    "type": "array",
+                    "value": "[]"
+                }
+            ]
+        }
+    ],
+    "updateAction": "APPEND"
+}
+EOF
+```
+
+```
+{
+    "contextResponses": [
+        {
+            "contextElement": {
+                "attributes": [
+                    {
+                        "name": "temperature-history",
+                        "type": "array",
+                        "value": ""
+                    }
+                ],
+                "id": "lab",
+                "isPattern": "false",
+                "type": "Room"
+            },
+            "statusCode": {
+                "code": "200",
+                "reasonPhrase": "OK"
+            }
+        }
+    ]
 }
 ```

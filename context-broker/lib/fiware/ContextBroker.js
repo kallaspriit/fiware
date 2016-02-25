@@ -23,17 +23,25 @@ export default class ContextBroker {
 		return new Promise((resolve) => {
 			const baseUrl = this._config.url + '/' + this._config.version;
 			const url = baseUrl + '/' + path;
-	
-			request({
+			const headers = {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
+			};
+
+			if (token) {
+				headers['X-Auth-Token'] = token;
+			}
+
+			const requestInfo = {
 				url: url,
 				method: method,
 				json: data,
-				headers: {
-					'X-Auth-Token': token,
-					'Content-Type': 'application/json',
-					'Accept': 'application/json'
-				}
-			}, (error, response, body) => {
+				headers: headers
+			};
+
+			console.log('making request', requestInfo);
+	
+			request(requestInfo, (error, response, body) => {
 				if (error !== null) {
 					throw error;
 				}
@@ -47,11 +55,11 @@ export default class ContextBroker {
 		});
 	}
 	
-	fetchEntity(name) {
+	fetchEntity(id) {
 		return this.query(
 			Method.GET,
 			this._config.token,
-			'contextEntities/' + name
+			'contextEntities/' + id
 		);
 	}
 
