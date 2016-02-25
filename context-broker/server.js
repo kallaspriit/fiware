@@ -84,16 +84,19 @@ app.post('/aggregate-temperature', (req, res) => {
 
 	const valueAttributeName = 'temperature';
 	const historyAttributeName = valueAttributeName + '-history';
+	const maxHistoryEntries = 100;
+
 	const info = req.body;
+
+	console.log('handling', info);
 
 	info.contextResponses.forEach((contextResponse) => {
 		const contextElement = contextResponse.contextElement;
 		const attributes = contextElement.attributes;
 		const valueAttribute = findAttribute(valueAttributeName, attributes);
 		const historyAttribute = findAttribute(historyAttributeName, attributes);
-		const maxHistoryEntries = 100;
 
-		historyAttribute.push(valueAttribute.value);
+		historyAttribute.value.push(valueAttribute.value);
 
 		while (historyAttribute.length > maxHistoryEntries) {
 			historyAttribute.shift();
