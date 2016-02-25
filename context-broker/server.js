@@ -111,12 +111,15 @@ app.post('/aggregate/:valueAttributeName/:historyAttributeName/:maxHistoryEntrie
 		const valueAttribute = findAttribute(valueAttributeName, attributes, true);
 		const historyAttribute = findAttribute(historyAttributeName, attributes, true);
 
+		// add new value
 		historyAttribute.value.push(valueAttribute.value);
 
-		while (historyAttribute.length > maxHistoryEntries) {
-			historyAttribute.shift();
+		// limit to last maxHistoryEntries values
+		while (historyAttribute.value.length > maxHistoryEntries) {
+			historyAttribute.value.shift();
 		}
 
+		// update the history parameter
 		contextBroker.updateEntityAttribute(contextElement.id, historyAttributeName, historyAttribute.value)
 			.then(handleQueryResponse(
 				'aggregated ' + contextElement.id + ' ' + valueAttributeName + ' to ' + historyAttributeName,
