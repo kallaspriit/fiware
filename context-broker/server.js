@@ -1,6 +1,7 @@
 import { server as config } from './config';
 import express from 'express';
 import bodyParser from 'body-parser';
+import NotifyCondition from './lib/fiware/NotifyCondition';
 import ContextBroker from './lib/fiware/ContextBroker';
 
 // setup context broker
@@ -86,8 +87,29 @@ app.get('/setup', (req, res) => {
 		value: '[]'
 	}];
 	
-	contextBroker.createEntity(id, type, attributes)
-		.then(handleQueryResponse('created entity "' + id + '" of type "' + type + '"', res));
+	contextBroker
+		.createEntity(id, type, attributes)
+		.then(handleQueryResponse('created entity "' + id + '" of type "' + type + '"'))
+	
+		.then(contextBroker.createSubscription({
+			entities: [{
+				type: type,
+				isPattern: false,
+				id: id
+			}],
+			attributes: [
+				'temperature',
+				'temperature-history'
+			],
+			reference: 'http://http://localhost:1028/aggregate/temperature/temperature-history/100',
+			duration: 'P1M',
+			notifyConditions: [{
+				type: NotifyCondition.ONCHANGE,
+				condValues: ['temperature']
+			}],
+			throttling: 'PT5S'
+		}))
+		.then(handleQueryResponse('setup test data', res));
 });
 
 // updates lab temperature

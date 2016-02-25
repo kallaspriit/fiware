@@ -89,6 +89,31 @@ export default class ContextBroker {
 		);
 	}
 
+	createSubscription({
+		entities = [],
+		attributes = [],
+		reference = 'http://example.com',
+		duration = 'P1M', // ISO_8601 https://en.wikipedia.org/wiki/ISO_8601
+		notifyConditions = [{
+			type: 'ONCHANGE',
+			condValues: []
+		}],
+		throttling = 'PT1S'
+	}) {
+		return this.query(
+			Method.POST,
+			this._config.token,
+			'subscribeContext', {
+				entities: entities,
+				attributes: attributes,
+				reference: reference,
+				duration: duration,
+				notifyConditions: notifyConditions,
+				throttling: throttling
+			}
+		);
+	}
+
 	updateEntityAttribute(id, attribute, value) {
 		return this.query(
 			Method.PUT,
