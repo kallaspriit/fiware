@@ -93,8 +93,8 @@ app.post('/aggregate-temperature', (req, res) => {
 	info.contextResponses.forEach((contextResponse) => {
 		const contextElement = contextResponse.contextElement;
 		const attributes = contextElement.attributes;
-		const valueAttribute = findAttribute(valueAttributeName, attributes);
-		const historyAttribute = findAttribute(historyAttributeName, attributes);
+		const valueAttribute = findAttribute(valueAttributeName, attributes, true);
+		const historyAttribute = findAttribute(historyAttributeName, attributes, true);
 
 		historyAttribute.value.push(valueAttribute.value);
 
@@ -144,10 +144,14 @@ function formatJsonResponse(name, response) {
 }
 
 // searches for an attribute from an array of attributes by name, returns null if not found
-function findAttribute(name, attributes) {
+function findAttribute(name, attributes, isRequired = false) {
 	const attribute = attributes.find((item) => item.name === name);
 
 	if (!attribute) {
+		if (isRequired) {
+			throw new Error('Attribute called "' + name + '" could not be found in ' + JSON.stringify(attributes));
+		}
+
 		return null;
 	}
 
