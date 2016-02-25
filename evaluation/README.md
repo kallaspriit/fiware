@@ -527,7 +527,7 @@ EOF
     "attributes": [
         "temperature", "temperature-history"
     ],
-    "reference": "http://localhost:1028/aggregate-temperature",
+    "reference": "http://localhost:1028/aggregate/temperature/temperature-history/5",
     "duration": "P1M",
     "notifyConditions": [
         {

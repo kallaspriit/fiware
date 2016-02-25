@@ -22,11 +22,28 @@ app.get('/', (req, res) => {
 		<h1>Fiware test server</h1>
 		<h2>Supported methods</h2>
 		<ul>
-			<li><strong>GET /</strong> - displays this help information</li>
-			<li><strong>GET /update-temperature/:value</strong> - updates lab temperature to given value</li>
-			<li><strong>GET /info/:id</strong> - displays entity info</li>
-			<li><strong>POST /mirror</strong> - renders requested JSON request in response and in console</li>
+			<li>
+				<strong>GET /</strong>
+				- displays this help information
+			</li>
+			<li>
+				<strong>GET /update-temperature/:value</strong>
+			- updates lab temperature to given value
+			</li>
+			<li>
+				<strong>GET /info/:id</strong>
+				- displays entity info
+				</li>
+			<li>
+				<strong>POST /mirror</strong>
+				- renders requested JSON request in response and in console
+			</li>
+			<li>
+				<strong>POST /aggregate/:valueAttributeName/:historyAttributeName/:maxHistoryEntries</strong>
+				- aggregates changed values to an array of last values
+			</li>
 		</ul>
+		
 		<h2>Examples</h2>
 		<ul>
 			<li>
@@ -79,16 +96,14 @@ app.post('/mirror', (req, res) => {
 });
 
 // aggregates temperature measurements
-app.post('/aggregate-temperature', (req, res) => {
+app.post('/aggregate/:valueAttributeName/:historyAttributeName/:maxHistoryEntries', (req, res) => {
 	logRequest(req);
 
-	const valueAttributeName = 'temperature';
-	const historyAttributeName = valueAttributeName + '-history';
-	const maxHistoryEntries = 100;
+	const valueAttributeName = req.params.valueAttributeName;
+	const historyAttributeName = req.params.historyAttributeName;
+	const maxHistoryEntries = Number.parseInt(req.params.maxHistoryEntries, 10);
 
 	const info = req.body;
-
-	console.log('handling', info);
 
 	info.contextResponses.forEach((contextResponse) => {
 		const contextElement = contextResponse.contextElement;
