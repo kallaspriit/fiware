@@ -525,7 +525,7 @@ EOF
         }
     ],
     "attributes": [
-        "temperature", "pressure"
+        "temperature", "temperature-history"
     ],
     "reference": "http://localhost:1028/aggregate-temperature",
     "duration": "P1M",
@@ -533,7 +533,7 @@ EOF
         {
             "type": "ONCHANGE",
             "condValues": [
-                "temperature", "pressure"
+                "temperature"
             ]
         }
     ],

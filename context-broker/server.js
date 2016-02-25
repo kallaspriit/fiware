@@ -86,12 +86,11 @@ app.post('/aggregate-temperature', (req, res) => {
 
 	info.contextResponses.forEach((contextResponse) => {
 		const contextElement = contextResponse.contextElement;
+		const attributes = contextElement.attributes;
+		const attribute = findAttribute('temperature', attributes);
+		const history = findAttribute('temperature-history', attributes);
 
-		console.log('handle ' + contextElement.id, contextResponse);
-
-		contextElement.attributes.forEach((attribute) => {
-			console.log('attribute "' + attribute.name + '"', attribute);
-		});
+		console.log('handle ' + contextElement.id, attribute, history);
 	});
 
 	res.send(formatJsonResponse('got request', req.body));
@@ -128,4 +127,37 @@ function formatJsonResponse(name, response) {
 		<h1>${name}</h1>
 		<pre>${responseText}</pre>
 	`;
+}
+
+// searches for an attribute from an array of attributes by name, returns null if not found
+function findAttribute(name, attributes) {
+	const attribute = attributes.find((attribute) => attribute.name === name);
+
+	if (!attribute) {
+		return null;
+	}
+
+	return parseAttribute(attribute);
+}
+
+// parses attribute value by type
+function parseAttribute(attribute) {
+	switch (attribute.type) {
+		case 'integer':
+			attribute.value = Number.parseInt(attribute.value, 10);
+		break;
+
+		case 'float':
+			attribute.value = Number.parseFloat(attribute.value);
+		break;
+
+		case 'array':
+			attribute.value = JSON.parse(attribute.value);
+		break;
+
+		default:
+			// do not change anything
+	}
+
+	return attribute;
 }
