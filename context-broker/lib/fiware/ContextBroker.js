@@ -94,9 +94,13 @@ export default class ContextBroker {
 			Method.PUT,
 			this._config.token,
 			'contextEntities/' + id + '/attributes/' + attribute, {
-				value: value
+				value: this.serializeValue(value)
 			}
 		);
+	}
+
+	serializeValue(value) {
+		return JSON.stringify(value);
 	}
 
 }

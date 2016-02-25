@@ -82,18 +82,29 @@ app.post('/mirror', (req, res) => {
 app.post('/aggregate-temperature', (req, res) => {
 	logRequest(req);
 
+	const valueAttributeName = 'temperature';
+	const historyAttributeName = valueAttributeName + '-history';
 	const info = req.body;
 
 	info.contextResponses.forEach((contextResponse) => {
 		const contextElement = contextResponse.contextElement;
 		const attributes = contextElement.attributes;
-		const attribute = findAttribute('temperature', attributes);
-		const history = findAttribute('temperature-history', attributes);
+		const valueAttribute = findAttribute(valueAttributeName, attributes);
+		const historyAttribute = findAttribute(historyAttributeName, attributes);
+		const maxHistoryEntries = 100;
 
-		console.log('handle ' + contextElement.id, attribute, history);
+		historyAttribute.push(valueAttribute.value);
+
+		while (historyAttribute.length > maxHistoryEntries) {
+			historyAttribute.shift();
+		}
+
+		contextBroker.updateEntityAttribute(contextElement.id, historyAttributeName, historyAttribute.value)
+			.then(handleQueryResponse(
+				'aggregated ' + contextElement.id + ' ' + valueAttributeName + ' to ' + historyAttributeName,
+				res
+			));
 	});
-
-	res.send(formatJsonResponse('got request', req.body));
 });
 
 // start the server
