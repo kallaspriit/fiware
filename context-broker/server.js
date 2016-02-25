@@ -101,7 +101,7 @@ app.get('/setup', (req, res) => {
 				'temperature',
 				'temperature-history'
 			],
-			reference: 'http://http://localhost:1028/aggregate/temperature/temperature-history/100',
+			reference: 'http://localhost:1028/aggregate/temperature/temperature-history/100',
 			duration: 'P1M',
 			notifyConditions: [{
 				type: NotifyCondition.ONCHANGE,
