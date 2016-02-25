@@ -19,12 +19,24 @@ app.get('/', (req, res) => {
 	logRequest(req);
 
 	res.send(`
-		<h1>Supported methods</h1>
+		<h1>Fiware test server</h1>
+		<h2>Supported methods</h2>
 		<ul>
 			<li><strong>GET /</strong> - displays this help information</li>
-			<li><strong>GET /test</strong> - executes test</li>
+			<li><strong>GET /update-temperature/:value</strong> - updates lab temperature to given value</li>
 			<li><strong>GET /info/:id</strong> - displays entity info</li>
 			<li><strong>POST /mirror</strong> - renders requested JSON request in response and in console</li>
+		</ul>
+		<h2>Examples</h2>
+		<ul>
+			<li>
+				<a href="/update-temperature/20.2"><strong>GET /update-temperature/20.2</strong></a>
+				- updates lab temperature to 20.2 degrees
+			</li>
+			<li>
+				<a href="/info/lab"><strong>GET /info/lab</strong></a>
+				- display lab information
+			</li>
 		</ul>
 	`);
 });
@@ -36,14 +48,17 @@ app.get('/test', (req, res) => {
 	const randomTemp = Math.round(Math.random() * 20 * 10) / 10;
 
 	contextBroker.updateEntityAttribute('lab', 'temperature', randomTemp)
-		.then(handleQueryResponse('updated temperature'))
-		.then((response) => {
-			const output = 'updated temperature to "' + randomTemp + '"\n' + JSON.stringify(response, null, '  ');
+		.then(handleQueryResponse('updated temperature to "' + randomTemp + '" degrees', res));
+});
 
-			console.log(output);
+// updates lab temperature
+app.get('/update-temperature/:value', (req, res) => {
+	logRequest(req);
 
-			res.send(output);
-		});
+	const temperature = req.params.value;
+
+	contextBroker.updateEntityAttribute('lab', 'temperature', temperature)
+		.then(handleQueryResponse('updated temperature to "' + temperature + '" degrees', res));
 });
 
 // provide test method
@@ -53,19 +68,14 @@ app.get('/info/:id', (req, res) => {
 	const id = req.params.id;
 
 	contextBroker.fetchEntity(id)
-		.then(handleQueryResponse('entity "' + id + '"'))
-		.then((response) => {
-			const output = 'entity "' + id + '"\n' + JSON.stringify(response, null, '  ');
-
-			res.send(output);
-		});
+		.then(handleQueryResponse('entity "' + id + '"', res));
 });
 
 // accept POST request and just mirror the data back
 app.post('/mirror', (req, res) => {
 	logRequest(req);
 
-	res.send('Got request\n' + JSON.stringify(req.body, null, '  '));
+	res.send(formatJsonResponse('got request', req.body));
 });
 
 // start the server
@@ -79,12 +89,24 @@ function logRequest(req) {
 }
 
 // handles query response
-function handleQueryResponse(name) {
+function handleQueryResponse(name, res) {
 	return (response) => {
-		const responseText = JSON.stringify(response, null, '  ') + '\n';
-
-		console.log(name, responseText);
+		if (res) {
+			// res.setHeader('Content-Type', 'text/html');
+			// res.send(formatJsonResponse(name, response));
+			res.json(response);
+		}
 
 		return response;
 	};
+}
+
+// formats JSON response to HTML
+function formatJsonResponse(name, response) {
+	const responseText = JSON.stringify(response, null, '\t');
+
+	return `
+		<h1>${name}</h1>
+		<pre>${responseText}</pre>
+	`;
 }

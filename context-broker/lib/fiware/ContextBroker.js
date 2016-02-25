@@ -24,9 +24,9 @@ export default class ContextBroker {
 			const baseUrl = this._config.url + '/' + this._config.version;
 			const url = baseUrl + '/' + path;
 			const headers = {
-				'Content-Type': 'application/json',
 				'Accept': 'application/json'
 			};
+			const hasParameters = Object.keys(data).length > 0;
 
 			if (token) {
 				headers['X-Auth-Token'] = token;
@@ -35,11 +35,17 @@ export default class ContextBroker {
 			const requestInfo = {
 				url: url,
 				method: method,
-				json: data,
 				headers: headers
 			};
 
-			console.log('making request', requestInfo);
+			headers['Content-Type'] = 'application/json';
+
+			if (hasParameters) {
+
+				requestInfo.json = data;
+			}
+
+			console.log('making request\n' + JSON.stringify(requestInfo, null, '  '));
 	
 			request(requestInfo, (error, response, body) => {
 				if (error !== null) {
@@ -49,7 +55,17 @@ export default class ContextBroker {
 				if (response.statusCode !== 200) {
 					throw new Error('querying broker failed (' + response.statusCode + ' - ' + body.message + ')');
 				}
-	
+
+				if (typeof body === 'string' && body.substr(0, 1) === '{') {
+					try {
+						body = JSON.parse(body);
+					} catch (e) {
+						// ignore
+					}
+				}
+
+				console.log('got response\n' + JSON.stringify(body, null, '  ') + '\n');
+
 				resolve(body);
 			});
 		});
