@@ -511,3 +511,43 @@ EOF
     ]
 }
 ```
+
+### Subscribe for temperature aggregation
+```
+(curl localhost:1026/v1/subscribeContext -s -S --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' -d @- | python -mjson.tool) <<EOF
+{
+    "entities": [
+        {
+            "type": "Room",
+            "isPattern": "false",
+            "id": "lab"
+        }
+    ],
+    "attributes": [
+        "temperature", "pressure"
+    ],
+    "reference": "http://localhost:1028/aggregate-temperature",
+    "duration": "P1M",
+    "notifyConditions": [
+        {
+            "type": "ONCHANGE",
+            "condValues": [
+                "temperature", "pressure"
+            ]
+        }
+    ],
+    "throttling": "PT5S"
+}
+EOF
+```
+
+```
+{
+    "subscribeResponse": {
+        "duration": "P1M",
+        "subscriptionId": "56ced42b981044052d2e1611",
+        "throttling": "PT5S"
+    }
+}
+```

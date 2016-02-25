@@ -78,6 +78,19 @@ app.post('/mirror', (req, res) => {
 	res.send(formatJsonResponse('got request', req.body));
 });
 
+// aggregates temperature measurements
+app.post('/aggregate-temperature', (req, res) => {
+	logRequest(req);
+
+	const info = req.body;
+
+	info.contextResponses.forEach((contextElement) => {
+		console.log('handle ' + contextElement.id, contextElement);
+	});
+
+	res.send(formatJsonResponse('got request', req.body));
+});
+
 // start the server
 app.listen(config.port, () => {
 	console.log('server started on port ' + config.port);
