@@ -79,11 +79,11 @@ export default class ContextBroker {
 		);
 	}
 
-	createEntity(id, attributes) {
+	createEntity(id, type, attributes) {
 		return this.query(
 			Method.POST,
 			this._config.token,
-			'contextEntities/' + id, {
+			'contextEntities/type/' + type + '/id/' + id, {
 				attributes: attributes
 			}
 		);

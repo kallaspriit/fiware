@@ -30,7 +30,7 @@ promptCredentials()
 	.then(handleQueryResponse('traffic sensor'))
 
 	// create a new entity
-	.then(() => contextBroker.createEntity(uniqueEntityId, [{
+	.then(() => contextBroker.createEntity(uniqueEntityId, 'Sensor', [{
 		name: 'city_location',
 		type: 'city',
 		value: 'Tartu'

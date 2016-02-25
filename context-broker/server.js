@@ -27,6 +27,10 @@ app.get('/', (req, res) => {
 				- displays this help information
 			</li>
 			<li>
+				<strong>GET /setup</strong>
+				- setups test data for empty context broker
+			</li>
+			<li>
 				<strong>GET /update-temperature/:value</strong>
 			- updates lab temperature to given value
 			</li>
@@ -58,14 +62,32 @@ app.get('/', (req, res) => {
 	`);
 });
 
-// provide test method
-app.get('/test', (req, res) => {
+// sets up the test data
+app.get('/setup', (req, res) => {
 	logRequest(req);
 
-	const randomTemp = Math.round(Math.random() * 20 * 10) / 10;
-
-	contextBroker.updateEntityAttribute('lab', 'temperature', randomTemp)
-		.then(handleQueryResponse('updated temperature to "' + randomTemp + '" degrees', res));
+	const id = 'lab';
+	const type = 'room';
+	const attributes = [{
+		name: 'temperature',
+		type: 'float',
+		value: '0'
+	}, {
+		name: 'temperature-history',
+		type: 'array',
+		value: '[]'
+	}, {
+		name: 'pressure',
+		type: 'integer',
+		value: '0'
+	}, {
+		name: 'pressure-history',
+		type: 'array',
+		value: '[]'
+	}];
+	
+	contextBroker.createEntity(id, type, attributes)
+		.then(handleQueryResponse('created entity "' + id + '" of type "' + type + '"', res));
 });
 
 // updates lab temperature
