@@ -84,8 +84,14 @@ app.post('/aggregate-temperature', (req, res) => {
 
 	const info = req.body;
 
-	info.contextResponses.forEach((contextElement) => {
-		console.log('handle ' + contextElement.id, contextElement);
+	info.contextResponses.forEach((contextResponse) => {
+		const contextElement = contextResponse.contextElement;
+
+		console.log('handle ' + contextElement.id, contextResponse);
+
+		contextElement.attributes.forEach((attribute) => {
+			console.log('attribute "' + attribute.name + '"', attribute);
+		});
 	});
 
 	res.send(formatJsonResponse('got request', req.body));
