@@ -100,6 +100,13 @@ export default class ContextBroker {
 	}
 
 	serializeValue(value) {
+		const type = typeof value;
+		const normalTypes = ['number', 'string'];
+
+		if (normalTypes.indexOf(type) !== -1) {
+			return value;
+		}
+
 		return JSON.stringify(value);
 	}
 

@@ -142,7 +142,7 @@ function formatJsonResponse(name, response) {
 
 // searches for an attribute from an array of attributes by name, returns null if not found
 function findAttribute(name, attributes) {
-	const attribute = attributes.find((attribute) => attribute.name === name);
+	const attribute = attributes.find((item) => item.name === name);
 
 	if (!attribute) {
 		return null;
@@ -156,15 +156,15 @@ function parseAttribute(attribute) {
 	switch (attribute.type) {
 		case 'integer':
 			attribute.value = Number.parseInt(attribute.value, 10);
-		break;
+			break;
 
 		case 'float':
 			attribute.value = Number.parseFloat(attribute.value);
-		break;
+			break;
 
 		case 'array':
 			attribute.value = JSON.parse(attribute.value);
-		break;
+			break;
 
 		default:
 			// do not change anything
