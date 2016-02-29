@@ -99,7 +99,7 @@ app.get('/setup', (req, res) => {
 	
 	contextBroker
 		.createEntity(id, type, attributes)
-		.then(handleQueryResponse('created entity "' + id + '" of type "' + type + '"'))
+		.then(handleQueryResponse())
 	
 		.then(contextBroker.createSubscription({
 			entities: [{
@@ -119,7 +119,8 @@ app.get('/setup', (req, res) => {
 			}],
 			throttling: 'PT5S'
 		}))
-		.then(handleQueryResponse('setup test data', res));
+		.then(handleQueryResponse(req, res))
+		.catch(handleQueryError(req, res));
 });
 
 // updates lab temperature
@@ -129,7 +130,8 @@ app.get('/update-temperature/:value', (req, res) => {
 	const temperature = req.params.value;
 
 	contextBroker.updateEntityAttribute('lab', 'temperature', temperature)
-		.then(handleQueryResponse('updated temperature to "' + temperature + '" degrees', res));
+		.then(handleQueryResponse(req, res))
+		.catch(handleQueryError(req, res));
 });
 
 // provide test method
@@ -137,11 +139,10 @@ app.get('/info/:id', (req, res) => {
 	logRequest(req);
 
 	const id = req.params.id;
-	const request = 'entity "' + id + '"';
 
 	contextBroker.fetchEntity(id)
-		.then(handleQueryResponse(request, req, res))
-		.catch(handleQueryResponse(request, req, res));
+		.then(handleQueryResponse(req, res))
+		.catch(handleQueryError(req, res));
 });
 
 // accept POST request and just mirror the data back
@@ -177,10 +178,8 @@ app.post('/aggregate/:valueAttributeName/:historyAttributeName/:maxHistoryEntrie
 
 		// update the history parameter
 		contextBroker.updateEntityAttribute(contextElement.id, historyAttributeName, historyAttribute.value)
-			.then(handleQueryResponse(
-				'aggregated ' + contextElement.id + ' ' + valueAttributeName + ' to ' + historyAttributeName,
-				res
-			));
+			.then(handleQueryResponse(req, res))
+			.catch(handleQueryError(req, res));
 	});
 });
 
@@ -195,7 +194,7 @@ function logRequest(req) {
 }
 
 // handles query response
-function handleQueryResponse(name, req, res) {
+function handleQueryResponse(req, res) {
 	return (response) => {
 		if (res) {
 			res.json(response);
@@ -206,7 +205,7 @@ function handleQueryResponse(name, req, res) {
 }
 
 // handles query error
-function handleQueryError(name, req, res) {
+function handleQueryError(req, res) {
 	return (response) => {
 		if (res) {
 			res.json(response);
