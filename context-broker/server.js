@@ -70,6 +70,14 @@ app.get('/', (req, res) => {
 				- display lab information
 			</li>
 		</ul>
+		
+		<h2>Apps</h2>
+		<ul>
+			<li>
+				<a href="/chart"><strong>GET /chart</strong></a>
+				- displays live temperature chart from FIWARE, updated by a wireless Arduino YUN device.
+			</li>
+		</ul>
 	`);
 });
 
