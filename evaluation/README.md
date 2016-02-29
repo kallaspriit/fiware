@@ -20,8 +20,31 @@ Setup
 - [API walkthrough](https://fiware-orion.readthedocs.org/en/develop/user/walkthrough_apiv1/index.html)
 - [API v1](http://telefonicaid.github.io/fiware-orion/api/v1/)
 - [Accumulator server example](https://github.com/telefonicaid/fiware-orion/blob/master/scripts/accumulator-server.py)
+- [PM2 production process manager](https://github.com/Unitech/pm2)
 - Amazon AMI `Basic IoT Stack powered by FIWARE v0.2.0 (ami-a97919de)`
 - SSH into the instance
+
+### Setup subscription server
+- `git clone git clone https://github.com/kallaspriit/fiware.git`
+- `cd fiware/context-broker`
+- `npm install`
+- `npm run server`
+
+### Keep the server running
+- `npm install pm2 --global`
+- `pm2 start server.js --interpreter ./node_modules/.bin/babel-node`
+- `pm2 startup centos`
+- `pm2 save`
+
+### PM2 helpful commands
+- `pm2 list`
+- `pm2 show server`
+- `pm2 monit`
+- `pm2 logs`
+- `pm2 logs --out --lines 20 --timestamp`
+- `pm2 stop server`
+- `pm2 restart server`
+- `pm2 delete server`
 
 ### Create room "lab"
 ```
@@ -382,12 +405,6 @@ curl localhost:1026/v1/contextEntities -s -S --header 'Content-Type: application
     ]
 }
 ```
-
-### Setup subscription server
-- `git clone git clone https://github.com/kallaspriit/fiware.git`
-- `cd fiware/context-broker`
-- `npm install`
-- `npm run server`
 
 ### Subscribe for temperature and pressure changes
 ```
