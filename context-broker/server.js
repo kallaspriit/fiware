@@ -1,6 +1,8 @@
 import { server as config } from './config';
 import express from 'express';
 import bodyParser from 'body-parser';
+import serveStatic from 'serve-static';
+import cors from 'cors';
 import NotifyCondition from './lib/fiware/NotifyCondition';
 import ContextBroker from './lib/fiware/ContextBroker';
 
@@ -12,8 +14,16 @@ const contextBroker = new ContextBroker({
 // create APP
 const app = express();
 
+// allow cors from all requests
+app.use(cors());
+
 // use json body parser
 app.use(bodyParser.json());
+
+// serve static files from apps
+app.use(serveStatic('apps', {
+	index: 'index.html'
+}));
 
 // provide some helpful information on default route
 app.get('/', (req, res) => {
@@ -127,9 +137,11 @@ app.get('/info/:id', (req, res) => {
 	logRequest(req);
 
 	const id = req.params.id;
+	const request = 'entity "' + id + '"';
 
 	contextBroker.fetchEntity(id)
-		.then(handleQueryResponse('entity "' + id + '"', res));
+		.then(handleQueryResponse(request, req, res))
+		.catch(handleQueryResponse(request, req, res));
 });
 
 // accept POST request and just mirror the data back
@@ -183,11 +195,20 @@ function logRequest(req) {
 }
 
 // handles query response
-function handleQueryResponse(name, res) {
+function handleQueryResponse(name, req, res) {
 	return (response) => {
 		if (res) {
-			// res.setHeader('Content-Type', 'text/html');
-			// res.send(formatJsonResponse(name, response));
+			res.json(response);
+		}
+
+		return response;
+	};
+}
+
+// handles query error
+function handleQueryError(name, req, res) {
+	return (response) => {
+		if (res) {
 			res.json(response);
 		}
 

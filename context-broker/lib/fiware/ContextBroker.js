@@ -20,7 +20,7 @@ export default class ContextBroker {
 	}
 
 	query(method, token, path, data = {}) {
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			const baseUrl = this._config.url + '/' + this._config.version;
 			const url = baseUrl + '/' + path;
 			const headers = {
@@ -53,7 +53,13 @@ export default class ContextBroker {
 				}
 	
 				if (response.statusCode !== 200) {
-					throw new Error('querying broker failed (' + response.statusCode + ' - ' + body.message + ')');
+					const message = body && body.message ? body.message : 'n/a';
+
+					reject({
+						error: true,
+						code: response.statusCode,
+						message: 'querying broker failed (' + response.statusCode + ' - ' + message + ')'
+					});
 				}
 
 				if (typeof body === 'string' && body.substr(0, 1) === '{') {
@@ -71,11 +77,24 @@ export default class ContextBroker {
 		});
 	}
 	
-	fetchEntity(id) {
+	fetchEntityX(id) {
 		return this.query(
 			Method.GET,
 			this._config.token,
 			'contextEntities/' + id
+		);
+	}
+
+	fetchEntity(id, asObjectMap = true) {
+		return this.query(
+			Method.POST,
+			this._config.token,
+			'queryContext' + (asObjectMap ? '?attributeFormat=object' : ''), {
+				entities: [{
+					isPattern: false,
+					id: id
+				}]
+			}
 		);
 	}
 
