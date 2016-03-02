@@ -177,7 +177,7 @@ app.post('/aggregate/:valueAttributeName', (req, res) => {
 	const valueAttributeName = req.params.valueAttributeName;
 	const historyAttributeName = valueAttributeName + '-history';
 	const countAttributeName = valueAttributeName + '-count';
-	const maxHistoryEntries = 1080; // save one every 60 seconds for a 7 day long history
+	const maxHistoryEntries = 10080; // save one every 60 seconds for a 7 day long history
 
 	const info = req.body;
 

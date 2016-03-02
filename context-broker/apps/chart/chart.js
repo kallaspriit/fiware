@@ -33,6 +33,9 @@ $('#container').highcharts({
 						var currentItemCount = Number.parseInt(attributes[config.attributeName + '-count'].value, 10);
 						var newItemCount = currentItemCount - previousItemCount;
 						var newItems = data.slice(data.length - newItemCount);
+						var currentValue = Number.parseFloat(attributes[config.attributeName].value);
+
+						$('#current-value').html(currentValue + '%');
 
 						if (previousItemCount === 0) {
 							series.setData(data.slice(1));
