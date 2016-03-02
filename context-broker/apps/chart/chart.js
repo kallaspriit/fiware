@@ -1,5 +1,19 @@
 /* eslint-disable */
 
+var config = {
+	entityId: 'lab',
+	attributeName: 'temperature-history',
+	chart: {
+		title: 'Light Intensity',
+		subtitle: 'Live light brightness reported by an Arduino YUN',
+		axis: {
+			title: 'Light brightness percentage',
+			unit: '%'
+		},
+		seriesTitle: 'Arduni YUN @ Lai 29'
+	}
+};
+
 $('#container').highcharts({
 	chart: {
 		type: 'spline',
@@ -8,59 +22,36 @@ $('#container').highcharts({
 				var series = this.series[0];
 
 				setInterval(function() {
-					$.get('/info/lab', function(response) {
+					$.get('/info/' + config.entityId, function(response) {
 						var attributes = response.contextResponses[0].contextElement.attributes;
-						var temperatureHistory = JSON.parse(attributes['temperature-history'].value);
+						var data = JSON.parse(attributes[config.attributeName].value);
 
-						console.log('info', temperatureHistory);
+						console.log('data', data);
 
-						series.setData(temperatureHistory);
+						series.setData(data);
 					});
 				}, 1000);
 			}
 		}
 	},
 	title: {
-		text: 'Temperature Chart'
+		text: config.chart.title
 	},
 	subtitle: {
-		text: 'Live data fetched from FIWARE populated by an Arduino YUN'
+		text: config.chart.subtitle
 	},
-	/*
-	xAxis: {
-		categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-		'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-	},
-	*/
 	yAxis: {
 		title: {
-			text: 'Temperature in degrees celsius'
+			text: config.chart.axis.title
 		},
 		labels: {
 			formatter: function() {
-				return this.value + '°';
+				return this.value + config.chart.axis.unit;
 			}
 		}
 	},
-	tooltip: {
-		crosshairs: true,
-			shared: true
-		},
-		plotOptions: {
-			spline: {
-				marker: {
-					radius: 4,
-					lineColor: '#666666',
-					lineWidth: 1
-				}
-			}
-		},
-		series: [{
-			name: 'Arduni YUN @ Stagnation Lab',
-			marker: {
-				symbol: 'square'
-			},
-			data: []
-		}]
-	}
-);
+	series: [{
+		name: config.chart.seriesTitle,
+		data: []
+	}]
+});

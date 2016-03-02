@@ -42,8 +42,8 @@ app.get('/', (req, res) => {
 				- setups test data for empty context broker
 			</li>
 			<li>
-				<strong>GET /update-temperature/:value</strong>
-			- updates lab temperature to given value
+				<strong>PUT /update/:entity/:attribute</strong>
+			- updates given entity attribute with value defined in body json "value"
 			</li>
 			<li>
 				<strong>GET /info/:id</strong>
@@ -62,8 +62,12 @@ app.get('/', (req, res) => {
 		<h2>Examples</h2>
 		<ul>
 			<li>
-				<a href="/update-temperature/20.2"><strong>GET /update-temperature/20.2</strong></a>
-				- updates lab temperature to 20.2 degrees
+				<a href="/setup"><strong>GET /setup</strong></a>
+				- creates the initial test entity or resets it if already exists
+			</li>
+			<li>
+				<strong>PUT /update/lab/brightness</strong> {"value": 50}
+				- updates lab brightness to 50 percent
 			</li>
 			<li>
 				<a href="/info/lab"><strong>GET /info/lab</strong></a>
@@ -75,7 +79,7 @@ app.get('/', (req, res) => {
 		<ul>
 			<li>
 				<a href="/chart"><strong>GET /chart</strong></a>
-				- displays live temperature chart from FIWARE, updated by a wireless Arduino YUN device.
+				- displays live brightness chart from FIWARE, updated by a wireless Arduino YUN device.
 			</li>
 		</ul>
 	`);
@@ -88,21 +92,17 @@ app.get('/setup', (req, res) => {
 	const id = 'lab';
 	const type = 'room';
 	const attributes = [{
-		name: 'temperature',
+		name: 'brightness',
 		type: 'float',
 		value: '0'
 	}, {
-		name: 'temperature-history',
+		name: 'brightness-history',
 		type: 'array',
 		value: '[]'
 	}, {
-		name: 'pressure',
-		type: 'integer',
+		name: 'brightness-count',
+		type: 'number',
 		value: '0'
-	}, {
-		name: 'pressure-history',
-		type: 'array',
-		value: '[]'
 	}];
 	
 	contextBroker
@@ -116,29 +116,20 @@ app.get('/setup', (req, res) => {
 				id: id
 			}],
 			attributes: [
-				'temperature',
-				'temperature-history'
+				'brightness',
+				'brightness-history',
+				'brightness-count'
 			],
-			reference: 'http://localhost:1028/aggregate/temperature/temperature-history/100',
+			reference: 'http://localhost:1028/aggregate/brightness',
 			duration: 'P1M',
 			notifyConditions: [{
 				type: NotifyCondition.ONCHANGE,
-				condValues: ['temperature']
+				condValues: ['brightness']
 			}],
 			throttling: 'PT5S'
 		}))
 		.then(handleQueryResponse(req, res))
-		.catch(handleQueryError(req, res));
-});
 
-// updates lab temperature
-app.get('/update-temperature/:value', (req, res) => {
-	logRequest(req);
-
-	const temperature = req.params.value;
-
-	contextBroker.updateEntityAttribute('lab', 'temperature', temperature)
-		.then(handleQueryResponse(req, res))
 		.catch(handleQueryError(req, res));
 });
 
@@ -153,20 +144,27 @@ app.get('/info/:id', (req, res) => {
 		.catch(handleQueryError(req, res));
 });
 
-// accept POST request and just mirror the data back
-app.post('/mirror', (req, res) => {
+// update given entity attribute
+app.put('/update/:entity/:attribute', (req, res) => {
 	logRequest(req);
 
-	res.send(formatJsonResponse('got request', req.body));
+	const entity = req.params.entity;
+	const attribute = req.params.attribute;
+	const value = req.body.value;
+
+	contextBroker.updateEntityAttribute(entity, attribute, value)
+		.then(handleQueryResponse(req, res))
+		.catch(handleQueryError(req, res));
 });
 
-// aggregates temperature measurements
-app.post('/aggregate/:valueAttributeName/:historyAttributeName/:maxHistoryEntries', (req, res) => {
+// aggregates entity values
+app.post('/aggregate/:valueAttributeName', (req, res) => {
 	logRequest(req);
 
 	const valueAttributeName = req.params.valueAttributeName;
-	const historyAttributeName = req.params.historyAttributeName;
-	const maxHistoryEntries = Number.parseInt(req.params.maxHistoryEntries, 10);
+	const historyAttributeName = valueAttributeName + '-history';
+	const countAttributeName = valueAttributeName + '-count';
+	const maxHistoryEntries = 100;
 
 	const info = req.body;
 
@@ -175,20 +173,34 @@ app.post('/aggregate/:valueAttributeName/:historyAttributeName/:maxHistoryEntrie
 		const attributes = contextElement.attributes;
 		const valueAttribute = findAttribute(valueAttributeName, attributes, true);
 		const historyAttribute = findAttribute(historyAttributeName, attributes, true);
+		const countAttribute = findAttribute(countAttributeName, attributes, true);
 
 		// add new value
 		historyAttribute.value.push(valueAttribute.value);
+
+		// increment counter
+		countAttribute.value = Number.parseInt(countAttribute.value, 10) + 1;
 
 		// limit to last maxHistoryEntries values
 		while (historyAttribute.value.length > maxHistoryEntries) {
 			historyAttribute.value.shift();
 		}
 
-		// update the history parameter
-		contextBroker.updateEntityAttribute(contextElement.id, historyAttributeName, historyAttribute.value)
+		// update entity attributes
+		contextBroker.updateEntityAttributes(contextElement.id, {
+			[historyAttributeName]: historyAttribute.value,
+			[countAttributeName]: countAttribute.value
+		})
 			.then(handleQueryResponse(req, res))
 			.catch(handleQueryError(req, res));
 	});
+});
+
+// accept POST request and just mirror the data back
+app.post('/mirror', (req, res) => {
+	logRequest(req);
+
+	res.send(formatJsonResponse('got request', req.body));
 });
 
 // start the server

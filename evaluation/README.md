@@ -1,6 +1,6 @@
 IoT Platform Evaluation Test
 ============================
-The goal of the test is to create a practical use-case of an IoT device that:
+The goal of the test is to create a practical use-case of an IoT platform that:
 - periodically reports some state to the server
 - accepts commands from the server to perform a task
 - can be queried by the server for current state
@@ -45,6 +45,12 @@ Setup
 - `pm2 stop server`
 - `pm2 restart server`
 - `pm2 delete server`
+
+### Clear existing database if needed
+- ssh into the server
+- `mongo`
+- `> use orion`
+- `> db.dropDatabase()`
 
 ### Create room "lab"
 ```

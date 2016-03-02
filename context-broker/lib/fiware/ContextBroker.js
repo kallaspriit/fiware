@@ -1,5 +1,6 @@
 import request from 'request';
 import Method from './Method';
+import UpdateAction from './UpdateAction';
 
 export default class ContextBroker {
 
@@ -72,17 +73,13 @@ export default class ContextBroker {
 
 				console.log('got response\n' + JSON.stringify(body, null, '  ') + '\n');
 
-				resolve(body);
+				if (body.errorCode) {
+					reject(body);
+				} else {
+					resolve(body);
+				}
 			});
 		});
-	}
-	
-	fetchEntityX(id) {
-		return this.query(
-			Method.GET,
-			this._config.token,
-			'contextEntities/' + id
-		);
 	}
 
 	fetchEntity(id, asObjectMap = true) {
@@ -98,12 +95,27 @@ export default class ContextBroker {
 		);
 	}
 
-	createEntity(id, type, attributes) {
+	createEntityX(id, type, attributes) {
 		return this.query(
 			Method.POST,
 			this._config.token,
 			'contextEntities/type/' + type + '/id/' + id, {
 				attributes: attributes
+			}
+		);
+	}
+	
+	createEntity(id, type, attributes, updateAction = UpdateAction.APPEND) {
+		return this.query(
+			Method.POST,
+			this._config.token,
+			'updateContext', {
+				contextElements: [{
+					type: type,
+					id: id,
+					attributes: attributes
+				}],
+				updateAction: updateAction
 			}
 		);
 	}
@@ -139,6 +151,25 @@ export default class ContextBroker {
 			this._config.token,
 			'contextEntities/' + id + '/attributes/' + attribute, {
 				value: this.serializeValue(value)
+			}
+		);
+	}
+
+	updateEntityAttributes(id, attributes) {
+		return this.query(
+			Method.PUT,
+			this._config.token,
+			'updateContext', {
+				contextElements: [{
+					id: id,
+					isPattern: false,
+					attributes: Object.keys(attributes).map((attributeName) => {
+						return {
+							name: attributeName,
+							value: attributes[attributeName]
+						};
+					})
+				}]
 			}
 		);
 	}
