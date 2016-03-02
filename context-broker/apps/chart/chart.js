@@ -35,7 +35,7 @@ $('#container').highcharts({
 						var newItems = data.slice(data.length - newItemCount);
 
 						if (previousItemCount === 0) {
-							series.setData(data);
+							series.setData(data.slice(1));
 						} else {
 							newItems.forEach((newItem) => {
 								series.addPoint(newItem);

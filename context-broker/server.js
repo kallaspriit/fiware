@@ -134,8 +134,8 @@ app.get('/setup', (req, res) => {
 				type: NotifyCondition.ONCHANGE,
 				condValues: ['brightness', 'last-updated']
 			}],
-			// throttling: 'PT60S'
-			throttling: 'PT1S'
+			throttling: 'PT60S'
+			// throttling: 'PT1S'
 		}))
 		.then(handleQueryResponse(req, res))
 
