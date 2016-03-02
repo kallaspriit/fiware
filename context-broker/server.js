@@ -175,6 +175,8 @@ app.post('/aggregate/:valueAttributeName', (req, res) => {
 		const historyAttribute = findAttribute(historyAttributeName, attributes, true);
 		const countAttribute = findAttribute(countAttributeName, attributes, true);
 
+		console.log('aggregating', valueAttribute.value, typeof valueAttribute.value, historyAttribute.value, typeof historyAttribute.value);
+
 		// add new value
 		historyAttribute.value.push(valueAttribute.value);
 
@@ -265,14 +267,34 @@ function parseAttribute(attribute) {
 	switch (attribute.type) {
 		case 'integer':
 			attribute.value = Number.parseInt(attribute.value, 10);
+
+			if (Number.isNaN(attribute.value)) {
+				console.error('parsing "' + attribute.value + '" as an integer failed, using zero');
+
+				attribute.value = 0;
+			}
+
 			break;
 
 		case 'float':
 			attribute.value = Number.parseFloat(attribute.value);
+
+			if (Number.isNaN(attribute.value)) {
+				console.error('parsing "' + attribute.value + '" as a float failed, using zero');
+
+				attribute.value = 0;
+			}
+
 			break;
 
 		case 'array':
-			attribute.value = JSON.parse(attribute.value);
+			try {
+				attribute.value = JSON.parse(attribute.value);
+			} catch (e) {
+				console.error('parsing "' + attribute.value + '" as an array failed, using empty array');
+
+				attribute.value = [];
+			}
 			break;
 
 		default:
