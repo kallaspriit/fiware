@@ -157,7 +157,7 @@ export default class ContextBroker {
 
 	updateEntityAttributes(id, attributes) {
 		return this.query(
-			Method.PUT,
+			Method.POST,
 			this._config.token,
 			'updateContext', {
 				contextElements: [{
