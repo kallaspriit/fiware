@@ -123,13 +123,14 @@ app.get('/setup', (req, res) => {
 			attributes: [
 				'brightness',
 				'brightness-history',
-				'brightness-count'
+				'brightness-count',
+				'last-updated'
 			],
 			reference: 'http://localhost:1028/aggregate/brightness',
 			duration: 'P1M',
 			notifyConditions: [{
 				type: NotifyCondition.ONCHANGE,
-				condValues: ['brightness']
+				condValues: ['brightness', 'last-updated']
 			}],
 			// throttling: 'PT60S'
 			throttling: 'PT1S'
