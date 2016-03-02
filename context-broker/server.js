@@ -288,10 +288,23 @@ function parseAttribute(attribute) {
 			break;
 
 		case 'array':
-			try {
-				attribute.value = JSON.parse(attribute.value);
-			} catch (e) {
-				console.error('parsing "' + attribute.value + '" as an array failed, using empty array');
+			if (typeof attribute.value === 'string') {
+				const original = attribute.value;
+
+				try {
+					attribute.value = JSON.parse(attribute.value);
+				} catch (e) {
+					console.error('parsing "' + attribute.value + '" as an array failed, using empty array');
+
+					attribute.value = [];
+				}
+
+				console.log('PARSED', original, typeof original, 'to', attribute.value, typeof attribute.value);
+			} else if (Array.isArray(attribute.value)) {
+				// don't change anything
+				console.log('ALREADY AN ARRAY', attribute.value, typeof attribute.value);
+			} else {
+				console.error('attribute "' + attribute.value + '" is not a string to parse, using empty array');
 
 				attribute.value = [];
 			}
