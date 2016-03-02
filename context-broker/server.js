@@ -175,8 +175,6 @@ app.post('/aggregate/:valueAttributeName', (req, res) => {
 		const historyAttribute = findAttribute(historyAttributeName, attributes, true);
 		const countAttribute = findAttribute(countAttributeName, attributes, true);
 
-		console.log('aggregating', valueAttribute.value, typeof valueAttribute.value, historyAttribute.value, typeof historyAttribute.value);
-
 		// add new value
 		historyAttribute.value.push(valueAttribute.value);
 
@@ -289,8 +287,6 @@ function parseAttribute(attribute) {
 
 		case 'array':
 			if (typeof attribute.value === 'string') {
-				const original = attribute.value;
-
 				try {
 					attribute.value = JSON.parse(attribute.value);
 				} catch (e) {
@@ -298,11 +294,8 @@ function parseAttribute(attribute) {
 
 					attribute.value = [];
 				}
-
-				console.log('PARSED', original, typeof original, 'to', attribute.value, typeof attribute.value);
 			} else if (Array.isArray(attribute.value)) {
-				// don't change anything
-				console.log('ALREADY AN ARRAY', attribute.value, typeof attribute.value);
+				// don't change anything if already an array
 			} else {
 				console.error('attribute "' + attribute.value + '" is not a string to parse, using empty array');
 
