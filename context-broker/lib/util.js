@@ -24,6 +24,10 @@ export default {
 				resolve(answers);
 			});
 		});
+	},
+	
+	getIsoDate() {
+		return (new Date()).toISOString();
 	}
 
 };

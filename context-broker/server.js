@@ -3,6 +3,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import serveStatic from 'serve-static';
 import cors from 'cors';
+import util from './lib/util';
 import NotifyCondition from './lib/fiware/NotifyCondition';
 import ContextBroker from './lib/fiware/ContextBroker';
 
@@ -98,11 +99,15 @@ app.get('/setup', (req, res) => {
 	}, {
 		name: 'brightness-history',
 		type: 'array',
-		value: '[]'
+		value: []
 	}, {
 		name: 'brightness-count',
 		type: 'number',
 		value: '0'
+	}, {
+		name: 'last-updated',
+		type: 'date',
+		value: util.getIsoDate()
 	}];
 	
 	contextBroker
@@ -126,8 +131,8 @@ app.get('/setup', (req, res) => {
 				type: NotifyCondition.ONCHANGE,
 				condValues: ['brightness']
 			}],
-			// throttling: 'PT100S'
-			throttling: 'PT0S'
+			// throttling: 'PT60S'
+			throttling: 'PT1S'
 		}))
 		.then(handleQueryResponse(req, res))
 
@@ -153,7 +158,11 @@ app.put('/update/:entity/:attribute', (req, res) => {
 	const attribute = req.params.attribute;
 	const value = req.body.value;
 
-	contextBroker.updateEntityAttribute(entity, attribute, value)
+	// contextBroker.updateEntityAttribute(entity, attribute, value)
+	contextBroker.updateEntityAttributes(entity, {
+		[attribute]: value,
+		['last-updated']: util.getIsoDate()
+	})
 		.then(handleQueryResponse(req, res))
 		.catch(handleQueryError(req, res));
 });
@@ -165,7 +174,7 @@ app.post('/aggregate/:valueAttributeName', (req, res) => {
 	const valueAttributeName = req.params.valueAttributeName;
 	const historyAttributeName = valueAttributeName + '-history';
 	const countAttributeName = valueAttributeName + '-count';
-	const maxHistoryEntries = 6048; // save one every 100 seconds for a 7 day long history
+	const maxHistoryEntries = 1080; // save one every 60 seconds for a 7 day long history
 
 	const info = req.body;
 
@@ -175,10 +184,9 @@ app.post('/aggregate/:valueAttributeName', (req, res) => {
 		const valueAttribute = findAttribute(valueAttributeName, attributes, true);
 		const historyAttribute = findAttribute(historyAttributeName, attributes, true);
 		const countAttribute = findAttribute(countAttributeName, attributes, true);
-		const currentDate = new Date();
 
 		// add new value
-		historyAttribute.value.push([currentDate.toISOString(), valueAttribute.value]);
+		historyAttribute.value.push([util.getIsoDate(), valueAttribute.value]);
 
 		// increment counter
 		countAttribute.value = Number.parseInt(countAttribute.value, 10) + 1;
