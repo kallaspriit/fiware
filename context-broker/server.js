@@ -101,7 +101,7 @@ app.get('/setup', (req, res) => {
 	}, {
 		name: 'brightness-history',
 		type: 'array',
-		value: null
+		value: ''
 	}, {
 		name: 'brightness-count',
 		type: 'number',
@@ -307,6 +307,11 @@ function parseAttribute(attribute) {
 
 					attribute.value = [];
 				}
+
+				if (!Array.isArray(attribute.value)) {
+					attribute.value = [];
+				}
+
 			} else if (Array.isArray(attribute.value)) {
 				// don't change anything if already an array
 			} else {
