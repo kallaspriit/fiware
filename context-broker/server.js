@@ -101,7 +101,7 @@ app.get('/setup', (req, res) => {
 	}, {
 		name: 'brightness-history',
 		type: 'array',
-		value: [[util.getIsoDate(), 0]]
+		value: null
 	}, {
 		name: 'brightness-count',
 		type: 'number',
