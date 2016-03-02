@@ -187,12 +187,15 @@ app.post('/aggregate/:valueAttributeName', (req, res) => {
 		const valueAttribute = findAttribute(valueAttributeName, attributes, true);
 		const historyAttribute = findAttribute(historyAttributeName, attributes, true);
 		const countAttribute = findAttribute(countAttributeName, attributes, true);
+		const currentCount = Number.parseInt(countAttribute.value, 10);
 
 		// add new value
-		historyAttribute.value.push([util.getIsoDate(), valueAttribute.value]);
+		if (currentCount > 0) {
+			historyAttribute.value.push([util.getIsoDate(), valueAttribute.value]);
+		}
 
 		// increment counter
-		countAttribute.value = Number.parseInt(countAttribute.value, 10) + 1;
+		countAttribute.value = currentCount + 1;
 
 		// limit to last maxHistoryEntries values
 		while (historyAttribute.value.length > maxHistoryEntries) {
