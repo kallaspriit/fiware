@@ -73,7 +73,7 @@ export default class ContextBroker {
 
 				console.log('got response\n' + JSON.stringify(body, null, '  ') + '\n');
 
-				if (body.errorCode) {
+				if (body && body.errorCode) {
 					reject(body);
 				} else {
 					resolve(body);
