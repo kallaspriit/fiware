@@ -18,7 +18,7 @@ var previousItemCount = 0;
 
 $('#container').highcharts({
 	chart: {
-		// type: 'spline',
+		type: 'spline',
 		zoomType: 'x',
 		events: {
 			load: function() {

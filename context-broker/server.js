@@ -19,7 +19,9 @@ const app = express();
 app.use(cors());
 
 // use json body parser
-app.use(bodyParser.json());
+app.use(bodyParser.json({
+	limit: '1mb'
+}));
 
 // serve static files from apps
 app.use(serveStatic('apps', {
