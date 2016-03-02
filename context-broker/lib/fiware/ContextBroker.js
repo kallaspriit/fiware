@@ -155,7 +155,7 @@ export default class ContextBroker {
 		);
 	}
 
-	updateEntityAttributes(id, attributes) {
+	updateEntityAttributes(id, attributes, updateAction = UpdateAction.UPDATE) {
 		return this.query(
 			Method.POST,
 			this._config.token,
@@ -169,7 +169,8 @@ export default class ContextBroker {
 							value: attributes[attributeName]
 						};
 					})
-				}]
+				}],
+				updateAction: updateAction
 			}
 		);
 	}
