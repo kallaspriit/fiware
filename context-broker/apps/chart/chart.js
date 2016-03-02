@@ -2,7 +2,7 @@
 
 var config = {
 	entityId: 'lab',
-	attributeName: 'temperature-history',
+	attributeName: 'brightness',
 	chart: {
 		title: 'Light Intensity',
 		subtitle: 'Live light brightness reported by an Arduino YUN',
@@ -10,9 +10,11 @@ var config = {
 			title: 'Light brightness percentage',
 			unit: '%'
 		},
-		seriesTitle: 'Arduni YUN @ Lai 29'
+		seriesTitle: 'Arduni YUN'
 	}
 };
+
+var previousItemCount = 0;
 
 $('#container').highcharts({
 	chart: {
@@ -24,11 +26,20 @@ $('#container').highcharts({
 				setInterval(function() {
 					$.get('/info/' + config.entityId, function(response) {
 						var attributes = response.contextResponses[0].contextElement.attributes;
-						var data = JSON.parse(attributes[config.attributeName].value);
+						var data = attributes[config.attributeName + '-history'].value.map((value) => Number.parseFloat(value));
+						var currentItemCount = Number.parseInt(attributes[config.attributeName + '-count'].value, 10);
+						var newItemCount = currentItemCount - previousItemCount;
+						var newItems = data.slice(data.length - newItemCount);
 
-						console.log('data', data);
+						if (previousItemCount === 0) {
+							series.setData(data);
+						} else {
+							newItems.forEach((newItem) => {
+								series.addPoint(newItem);
+							});
+						}
 
-						series.setData(data);
+						previousItemCount = currentItemCount;
 					});
 				}, 1000);
 			}
@@ -48,6 +59,11 @@ $('#container').highcharts({
 			formatter: function() {
 				return this.value + config.chart.axis.unit;
 			}
+		}
+	},
+	tooltip: {
+		formatter: function () {
+			return '<b>' + Highcharts.numberFormat(this.y, 1) + '%'
 		}
 	},
 	series: [{

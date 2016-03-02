@@ -126,7 +126,8 @@ app.get('/setup', (req, res) => {
 				type: NotifyCondition.ONCHANGE,
 				condValues: ['brightness']
 			}],
-			throttling: 'PT5S'
+			// throttling: 'PT100S'
+			throttling: 'PT0S'
 		}))
 		.then(handleQueryResponse(req, res))
 
@@ -164,7 +165,7 @@ app.post('/aggregate/:valueAttributeName', (req, res) => {
 	const valueAttributeName = req.params.valueAttributeName;
 	const historyAttributeName = valueAttributeName + '-history';
 	const countAttributeName = valueAttributeName + '-count';
-	const maxHistoryEntries = 100;
+	const maxHistoryEntries = 6048; // save one every 100 seconds for a 7 day long history
 
 	const info = req.body;
 
@@ -174,9 +175,10 @@ app.post('/aggregate/:valueAttributeName', (req, res) => {
 		const valueAttribute = findAttribute(valueAttributeName, attributes, true);
 		const historyAttribute = findAttribute(historyAttributeName, attributes, true);
 		const countAttribute = findAttribute(countAttributeName, attributes, true);
+		const currentDate = new Date();
 
 		// add new value
-		historyAttribute.value.push(valueAttribute.value);
+		historyAttribute.value.push([currentDate.toISOString(), valueAttribute.value]);
 
 		// increment counter
 		countAttribute.value = Number.parseInt(countAttribute.value, 10) + 1;
