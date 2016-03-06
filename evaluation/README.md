@@ -32,6 +32,8 @@ Setup
 
 ### Keep the server running
 - `npm install pm2 --global`
+- `pm2 install pm2-logrotate`
+- `pm2 set pm2-logrorate:retain 7`
 - `pm2 start server.js --interpreter ./node_modules/.bin/babel-node`
 - `pm2 startup centos`
 - `pm2 save`
