@@ -27,8 +27,10 @@ $('#container').highcharts({
 				setInterval(function() {
 					$.get('/info/' + config.entityId, function(response) {
 						var attributes = response.contextResponses[0].contextElement.attributes;
+						var currentDate = new Date();
+						var timezoneOffsetMs =  currentDate.getTimezoneOffset() * 60 * 1000;
 						var data = attributes[config.attributeName + '-history'].value.map(function(item) {
-							return [(new Date(item[0])).getTime(), Number.parseInt(item[1], 10)]
+							return [(new Date(item[0])).getTime() - timezoneOffsetMs, Number.parseInt(item[1], 10)]
 						});
 						var currentItemCount = Number.parseInt(attributes[config.attributeName + '-count'].value, 10);
 						var newItemCount = currentItemCount - previousItemCount;
